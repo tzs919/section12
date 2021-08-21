@@ -1,0 +1,82 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: section12-app
+spec:
+  selector:
+    matchLabels:
+      app: section12
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: section12
+    spec:
+      containers:
+        - name: section12-app
+          image: johncarnell/tmx-licensing-service:section12
+          env:
+            - name: "PROFILE"
+              value: "default"
+            - name: "CONFIGSERVER_URI"
+              value: "http://localhost:8888"
+            - name: "CONFIGSERVER_PORT"
+              value: "8888"
+            - name: "DATABASESERVER_PORT"
+              value: "5432"
+            - name: "ENCRYPT_KEY"
+              value: "IMSYMMETRIC"
+          ports:
+            - containerPort: 8080
+        - name: database
+          image: postgres:9.5
+          env:
+            - name: "POSTGRES_USER"
+              value: "postgres"
+            - name: "POSTGRES_PASSWORD"
+              value: "p0stgr@s"
+            - name: "POSTGRES_DB"
+              value: "eagle_eye_local"
+          ports:
+            - containerPort: 5432
+        - name: tmx-confsvr
+          image: johncarnell/tmx-confsvr:section12
+          env:
+            - name: "ENCRYPT_KEY"
+              value: "IMSYMMETRIC"
+          ports:
+            - containerPort: 8888
+        - name: curl-app
+          image: curlimages/curl:latest
+          command: ['sh', '-c', 'echo The app is running! && sleep 3600']
+
+---
+
+kind: Service
+apiVersion: v1
+metadata:
+  name: section12-service
+spec:
+  selector:
+    app: section12
+  ports:
+    - port: 8080
+      targetPort: 8080
+
+---
+
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: section12-ingress
+  annotations:
+    # kubernetes.io/ingress.class: nginx
+    ingress.kubernetes.io/rewrite-target: /
+spec:
+  rules:
+    - http:
+        paths:
+          - path: /
+            backend:
+              serviceName: section12-service
+              servicePort: 8080
