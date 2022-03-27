@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: configserver
+spec:
+  selector:
+    matchLabels:
+      app: configserver
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: configserver
+    spec:
+      containers:
+        - name: configserver
+          image: johncarnell/tmx-confsvr:section12
+          env:
+            - name: "ENCRYPT_KEY"
+              value: "IMSYMMETRIC"
+          ports:
+            - containerPort: 8888
+          volumeMounts:
+            - name: config-volume
+              mountPath: /etc/config1
+      volumes:
+        - name: config-volume
+          configMap:
+            name: licensingservice-config

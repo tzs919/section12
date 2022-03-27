@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mytest
+  namespace: test
+spec:
+  selector:
+    matchLabels:
+      app: mytest
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: mytest
+    spec:
+      containers:
+        - name: mytest
+          image: curlimages/curl:latest
+          command: ["/bin/sh", "-c", "sleep 99999"]

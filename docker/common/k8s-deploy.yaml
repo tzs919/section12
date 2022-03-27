@@ -119,7 +119,7 @@ metadata:
 spec:
   ingressClassName: nginx
   rules:
-    - host: www.mytest.com
+    - host: www.license.com
       http:
         paths:
           - pathType: Prefix
